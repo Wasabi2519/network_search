@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Scanner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #device-list {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        p {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Device Scanner</h1>
+        <button id="manual-scan-btn">Manual Scan</button>
+        <button id="auto-scan-btn">Auto Scan</button>
+        <div id="device-list"></div>
+        <p id="total-devices"></p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Manual Scan Button Click Event
+            $("#manual-scan-btn").click(function () {
+                $.ajax({
+                    url: "/devices",
+                    type: "GET",
+                    success: function (response) {
+                        displayDevices(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error:", error);
+                    }
+                });
+            });
+
+            // Auto Scan Button Click Event
+            $("#auto-scan-btn").click(function () {
+                // Trigger manual scan once when auto scan button is clicked
+                $("#manual-scan-btn").click();
+
+                // Start auto scan every 50 seconds
+                setInterval(function () {
+                    $("#manual-scan-btn").click();
+                }, 50000); // 50 seconds
+            });
+
+            // Function to display devices
+            function displayDevices(devices) {
+                var deviceList = $("#device-list");
+                deviceList.empty();
+                if (devices.length > 0) {
+                    deviceList.append("<h2>Devices:</h2>");
+                    var ul = $("<ul></ul>");
+                    devices.forEach(function (device) {
+                        var li = $("<li></li>").text("IP: " + device.ip + ", MAC: " + device.mac);
+                        ul.append(li);
+                    });
+                    deviceList.append(ul);
+                    $("#total-devices").text("Total Devices: " + devices.length);
+                } else {
+                    deviceList.append("<p>No devices found.</p>");
+                    $("#total-devices").text("");
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
